@@ -43,11 +43,18 @@ while person != '0':
     # plus a list of other top recipients of employee and direct contributions  
     for contrib in ie.pol.contributors(cand_id, cycle='2012', limit=5):
         print contrib['name'], "."*(30-len(contrib['name'])), contrib['total_amount'] #total contributed to candidate
+        
+        # insert a blank line
+        all_recipient_bars.append(0)
+        all_recipient_names.append(" ")
+        all_recipient_colors.append('b')
+              
+        # insert a 0-height bar labeled as the contributor
         all_recipient_bars.append(0)
         all_recipient_names.append(contrib['name'].upper())
         all_recipient_colors.append('b')
         
-        # list top recipients of contributions from each company...
+        # list top recipients for each contributor...
         try:
             for recipient in ie.org.recipients(contrib['id'], cycle='2012'):
                 print "\t", recipient['name'], recipient['employee_amount'], "(employees:", recipient['employee_count'], ")", recipient['direct_amount'], "(direct)"
@@ -66,11 +73,12 @@ while person != '0':
             all_recipient_names.append(ie.entities.metadata(cand_id)['name'])
             all_recipient_colors.append('r')
 
-# flip everything around so everything is in descending order in the horizontal chart                
+    # flip everything around so everything is in descending order in the horizontal chart                
     all_recipient_bars.reverse()
     all_recipient_names.reverse()
     all_recipient_colors.reverse()
-       
+    
+    # make the pretty pictures   
     ind = np.arange(len(all_recipient_bars))
     width = 0.8
     plt.barh(ind, all_recipient_bars, color=all_recipient_colors)
