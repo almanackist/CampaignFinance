@@ -6,6 +6,15 @@ api_key = '81ae602f16f34cbc9fe2643c7691f3d3'
 
 ie = InfluenceExplorer(api_key)
 person = {}
+# set variables for bar chart values and labels
+all_recipient_bars=[]
+all_recipient_names=[]
+all_recipient_colors=[]
+    
+def add_bar_elements(value, name, color):
+    all_recipient_bars.append(value)
+    all_recipient_names.append(name)
+    all_recipient_colors.append(color)
 
 # enter a candidate
 while person != '0':
@@ -34,44 +43,31 @@ while person != '0':
         cand_id = cand[0]['id']
         print "Top contributors for", cand[0]['name']
 
-    # set variables for bar chart values and labels
-    all_recipient_bars=[]
-    all_recipient_names=[]
-    all_recipient_colors=[]
-
     # for each contributor to the candidate, print their total amount contributed,
     # plus a list of other top recipients of employee and direct contributions  
     for contrib in ie.pol.contributors(cand_id, cycle='2012', limit=5):
         print contrib['name'], "."*(30-len(contrib['name'])), contrib['total_amount'] #total contributed to candidate
         
         # insert a blank line
-        all_recipient_bars.append(0)
-        all_recipient_names.append(" ")
-        all_recipient_colors.append('b')
+        add_bar_elements(0, ' ', 'b')
               
         # insert a 0-height bar labeled as the contributor
-        all_recipient_bars.append(0)
-        all_recipient_names.append(contrib['name'].upper())
-        all_recipient_colors.append('b')
+        add_bar_elements(0, contrib['name'].upper(), 'b')
         
         # list top recipients for each contributor...
         try:
             for recipient in ie.org.recipients(contrib['id'], cycle='2012'):
                 print "\t", recipient['name'], recipient['employee_amount'], "(employees:", recipient['employee_count'], ")", recipient['direct_amount'], "(direct)"
                 recipient_total = float(recipient['employee_amount']) + float(recipient['direct_amount'])
-                all_recipient_bars.append(recipient_total)
-                all_recipient_names.append(recipient['name'])
                 if recipient['id'] == cand_id:  #add highlighting if recipient is selected candidate
-                    all_recipient_colors.append('r')
+                    add_bar_elements(recipient_total, recipient['name'], 'r')
                 else:
-                    all_recipient_colors.append('b')
+                    add_bar_elements(recipient_total, recipient['name'], 'b')
                     
         # unless there are no other recipients.
         except:
             print "\t(no other recipient data available)"
-            all_recipient_bars.append(float(contrib['total_amount']))
-            all_recipient_names.append(ie.entities.metadata(cand_id)['name'])
-            all_recipient_colors.append('r')
+            add_bar_elements(float(contrib['total_amount']), ie.entities.metadata(cand_id)['name'], 'r')
 
     # flip everything around so everything is in descending order in the horizontal chart                
     all_recipient_bars.reverse()
