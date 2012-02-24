@@ -29,7 +29,7 @@ while person != '0':
         cand_id = cand_list[choice][3]
         print "Top contributors for", cand_list[choice][0]
 
-    # just one possible candidate
+    # if just one candidate, grab their id and proceed
     else:
         cand_id = cand[0]['id']
         print "Top contributors for", cand[0]['name']
@@ -38,46 +38,31 @@ while person != '0':
     all_recipient_bars=[]
     all_recipient_names=[]
 
-    # for each contributor to the candidate,
-    # print their total amount contributed,
-    # plus a list of other top recipients of 
-    # employee and direct contributions  
+    # for each contributor to the candidate, print their total amount contributed,
+    # plus a list of other top recipients of employee and direct contributions  
     for contrib in ie.pol.contributors(cand_id, cycle='2012'):
-        print contrib['name'], "."*(30-len(contrib['name'])), contrib['total_amount']
+        print contrib['name'], "."*(30-len(contrib['name'])), contrib['total_amount'] #total contributed to candidate
         
-        local_recipient_bars=[]
-        local_recipient_names=[]
-        
+        # list top recipients of contributions from each company...
         try:
             for recipient in ie.org.recipients(contrib['id'], cycle='2012'):
                 print "\t", recipient['name'], recipient['employee_amount'], "(employees:", recipient['employee_count'], ")", recipient['direct_amount'], "(direct)"
                 recipient_total = float(recipient['employee_amount']) + float(recipient['direct_amount'])
-                local_recipient_bars.append(recipient_total)
-                local_recipient_names.append(contrib['name']+":"+recipient['name'])
+                all_recipient_bars.append(recipient_total)
+                all_recipient_names.append(contrib['name']+":"+recipient['name'])
                     
+        # unless there are no other recipients.
         except:
             print "\t(no other recipient data available)"
-            local_recipient_bars.append(float(contrib['total_amount']))
-            local_recipient_names.append(contrib['name'])
-        
-        all_recipient_bars.append(local_recipient_bars)
-        all_recipient_names.append(local_recipient_names)
-        
-    print all_recipient_bars
-    print all_recipient_names
-    
-    last_max_ind = 0
-    index = 0
-    
-    for sub_plot in all_recipient_bars:
-        ind = np.arange(len(sub_plot))
-        width = 0.8
-        new_ind = [(last_max_ind + i) for i in ind]
-        plt.barh(new_ind, sub_plot)
-        plt.yticks(new_ind, all_recipient_names[index])
-        print sub_plot
-        print all_recipient_names[index]
-        last_max_ind = new_ind[-1] + 2
-        index += 1
+            all_recipient_bars.append(float(contrib['total_amount']))
+            all_recipient_names.append(contrib['name'])
+                
+    all_recipient_bars.reverse()
+    all_recipient_names.reverse()
+       
+    ind = np.arange(len(all_recipient_bars))
+    width = 0.8
+    plt.barh(ind, all_recipient_bars)
+    plt.yticks(ind+width/2, all_recipient_names)
     
     plt.show()
