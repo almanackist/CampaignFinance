@@ -37,6 +37,7 @@ while person != '0':
     # set variables for bar chart values and labels
     all_recipient_bars=[]
     all_recipient_names=[]
+    all_recipient_colors=[]
 
     # for each contributor to the candidate, print their total amount contributed,
     # plus a list of other top recipients of employee and direct contributions  
@@ -50,19 +51,25 @@ while person != '0':
                 recipient_total = float(recipient['employee_amount']) + float(recipient['direct_amount'])
                 all_recipient_bars.append(recipient_total)
                 all_recipient_names.append(contrib['name']+":"+recipient['name'])
+                if recipient['id'] == cand_id:
+                    all_recipient_colors.append('r')
+                else:
+                    all_recipient_colors.append('b')
                     
         # unless there are no other recipients.
         except:
             print "\t(no other recipient data available)"
             all_recipient_bars.append(float(contrib['total_amount']))
             all_recipient_names.append(contrib['name'])
+            all_recipient_colors.append('r')
                 
     all_recipient_bars.reverse()
     all_recipient_names.reverse()
+    all_recipient_colors.reverse()
        
     ind = np.arange(len(all_recipient_bars))
     width = 0.8
-    plt.barh(ind, all_recipient_bars)
+    plt.barh(ind, all_recipient_bars, color=all_recipient_colors)
     plt.yticks(ind+width/2, all_recipient_names)
     
     plt.show()
