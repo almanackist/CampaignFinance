@@ -41,8 +41,11 @@ while person != '0':
 
     # for each contributor to the candidate, print their total amount contributed,
     # plus a list of other top recipients of employee and direct contributions  
-    for contrib in ie.pol.contributors(cand_id, cycle='2012'):
+    for contrib in ie.pol.contributors(cand_id, cycle='2012', limit=5):
         print contrib['name'], "."*(30-len(contrib['name'])), contrib['total_amount'] #total contributed to candidate
+        all_recipient_bars.append(0)
+        all_recipient_names.append(contrib['name'].upper())
+        all_recipient_colors.append('b')
         
         # list top recipients of contributions from each company...
         try:
@@ -50,8 +53,8 @@ while person != '0':
                 print "\t", recipient['name'], recipient['employee_amount'], "(employees:", recipient['employee_count'], ")", recipient['direct_amount'], "(direct)"
                 recipient_total = float(recipient['employee_amount']) + float(recipient['direct_amount'])
                 all_recipient_bars.append(recipient_total)
-                all_recipient_names.append(contrib['name']+":"+recipient['name'])
-                if recipient['id'] == cand_id:
+                all_recipient_names.append(recipient['name'])
+                if recipient['id'] == cand_id:  #add highlighting if recipient is selected candidate
                     all_recipient_colors.append('r')
                 else:
                     all_recipient_colors.append('b')
@@ -60,9 +63,10 @@ while person != '0':
         except:
             print "\t(no other recipient data available)"
             all_recipient_bars.append(float(contrib['total_amount']))
-            all_recipient_names.append(contrib['name'])
+            all_recipient_names.append(ie.entities.metadata(cand_id)['name'])
             all_recipient_colors.append('r')
-                
+
+# flip everything around so everything is in descending order in the horizontal chart                
     all_recipient_bars.reverse()
     all_recipient_names.reverse()
     all_recipient_colors.reverse()
@@ -70,6 +74,6 @@ while person != '0':
     ind = np.arange(len(all_recipient_bars))
     width = 0.8
     plt.barh(ind, all_recipient_bars, color=all_recipient_colors)
-    plt.yticks(ind+width/2, all_recipient_names)
+    plt.yticks(ind+width/2, all_recipient_names, fontsize=9)
     
     plt.show()
